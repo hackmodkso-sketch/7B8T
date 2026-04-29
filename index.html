@@ -132,30 +132,10 @@
         </div>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl px-6 mb-10 fade-in" style="animation-delay: 0.4s">
-        
-        <div class="glass p-8 group">
+    <div class="flex justify-center w-full max-w-5xl px-6 mb-10 fade-in" style="animation-delay: 0.4s">
+        <div class="glass p-8 group w-full max-w-md">
             <div class="flex justify-between items-start mb-6">
                 <h3 class="font-black opacity-50 uppercase text-xs tracking-tighter">Connect Main</h3>
-                <span class="w-2 h-2 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)]"></span>
-            </div>
-            <p class="text-slate-400 text-xs uppercase mb-1">Hostname</p>
-            <p class="text-xl md:text-2xl font-mono font-bold text-white break-all">central-approach.gl.at.ply.gg</p>
-            <div class="mt-4 flex items-center gap-4">
-                <div>
-                    <p class="text-slate-400 text-[10px] uppercase">Port</p>
-                    <p class="font-bold">14572</p>
-                </div>
-                <div class="ml-auto text-right">
-                    <p id="primary-status" class="text-xs font-bold uppercase tracking-widest opacity-60">Checking...</p>
-                    <p id="primary-count" class="text-2xl font-black accent-text">--</p>
-                </div>
-            </div>
-        </div>
-
-        <div class="glass p-8 group">
-            <div class="flex justify-between items-start mb-6">
-                <h3 class="font-black opacity-50 uppercase text-xs tracking-tighter">Connect Fallback</h3>
                 <span class="w-2 h-2 rounded-full bg-blue-500 shadow-[0_0_10px_rgba(59,130,246,0.8)]"></span>
             </div>
             <p class="text-slate-400 text-xs uppercase mb-1">Numeric IP</p>
@@ -166,8 +146,8 @@
                     <p class="font-bold">14572</p>
                 </div>
                 <div class="ml-auto text-right">
-                    <p id="fallback-status" class="text-xs font-bold uppercase tracking-widest opacity-60">Checking...</p>
-                    <p id="fallback-count" class="text-2xl font-black accent-text">--</p>
+                    <p id="server-status" class="text-xs font-bold uppercase tracking-widest opacity-60">Checking...</p>
+                    <p id="server-count" class="text-2xl font-black accent-text">--</p>
                 </div>
             </div>
         </div>
@@ -185,7 +165,7 @@
     </div>
 
     <footer class="mt-auto w-full border-t border-white/5 bg-black/20 py-10 text-center">
-        <p class="text-slate-500 text-xs mb-4 uppercase tracking-[0.2em]">� 2026 7B8T ANARCHY NETWORK</p>
+        <p class="text-slate-500 text-xs mb-4 uppercase tracking-[0.2em]">© 2026 7B8T ANARCHY NETWORK</p>
         <a href="https://discord.gg/3RvvM7Gsqm" class="opacity-50 hover:opacity-100 transition text-xs">
             Discord Support: 3RvvM7Gsqm
         </a>
@@ -206,25 +186,18 @@
                     resourceDisplay.innerText = JSON.stringify(data, null, 4);
                 }
 
-                const elements = [
-                    { count: 'primary-count', status: 'primary-status' },
-                    { count: 'fallback-count', status: 'fallback-status' }
-                ];
-
-                elements.forEach(el => {
-                    const countEl = document.getElementById(el.count);
-                    const statusEl = document.getElementById(el.status);
-                    
-                    if (data.online) {
-                        countEl.innerText = `${data.players.online} / ${data.players.max}`;
-                        statusEl.innerText = "在线 / ONLINE";
-                        statusEl.classList.add('accent-text');
-                    } else {
-                        countEl.innerText = "OFFLINE";
-                        statusEl.innerText = "离线 / OFFLINE";
-                        statusEl.style.color = "#ef4444";
-                    }
-                });
+                const countEl = document.getElementById('server-count');
+                const statusEl = document.getElementById('server-status');
+                
+                if (data.online) {
+                    countEl.innerText = `${data.players.online} / ${data.players.max}`;
+                    statusEl.innerText = "在线 / ONLINE";
+                    statusEl.classList.add('accent-text');
+                } else {
+                    countEl.innerText = "OFFLINE";
+                    statusEl.innerText = "离线 / OFFLINE";
+                    statusEl.style.color = "#ef4444";
+                }
             } catch(e) {
                 console.error("Fetch Error");
                 document.getElementById('api-resource-display').innerText = "Failed to fetch data from API.";
@@ -245,6 +218,5 @@
         updateServerStatus();
         setInterval(updateServerStatus, 30000);
     </script>
-
 
 </body></html>
