@@ -88,6 +88,19 @@
         }
         .stat-line:last-child { border: none; }
 
+        /* Bot Console Terminal */
+        #bot-terminal {
+            background: #111214;
+            color: #23a55a;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            height: 60px;
+            overflow-y: auto;
+            border: 1px solid #23272a;
+        }
+
         /* Main Game Arena */
         #game-container {
             flex-grow: 1;
@@ -105,6 +118,7 @@
             margin-bottom: 24px;
             color: #fff;
             text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: color 0.3s ease;
         }
 
         .board {
@@ -116,6 +130,14 @@
             padding: 15px;
             border-radius: 12px;
             box-shadow: 0 12px 36px rgba(0,0,0,0.4);
+            transition: border 0.3s ease, box-shadow 0.3s ease;
+            border: 2px solid transparent;
+        }
+
+        /* Impossible Mode Aggressive Glow */
+        .board.impossible-rage {
+            border-color: #f23f43;
+            box-shadow: 0 0 25px rgba(242, 63, 67, 0.4);
         }
 
         .cell {
@@ -157,8 +179,15 @@
             <select id="botDifficulty">
                 <option value="easy">Easy (Random moves)</option>
                 <option value="medium">Medium (Blocks wins)</option>
-                <option value="unbeatable">Hard (Minimax Algorithm)</option>
+                <option value="unbeatable">Hard (Standard AI)</option>
+                <option value="impossible">🔴 IMPOSSIBLE MODE</option>
             </select>
+        </div>
+
+        <!-- Bot Live Output Logs -->
+        <div class="admin-section" id="terminal-section">
+            <h3>Bot Core Logs</h3>
+            <div id="bot-terminal">> System ready.</div>
         </div>
 
         <!-- Real-time Stats Tracker -->
@@ -200,12 +229,14 @@
         const modeSelect = document.getElementById("gameMode");
         const diffSelect = document.getElementById("botDifficulty");
         const diffLabel = document.getElementById("diff-label");
+        const terminalElement = document.getElementById("bot-terminal");
         const cells = document.querySelectorAll(".cell");
         
         // Buttons
         document.getElementById("btn-reset").addEventListener("click", resetBoard);
         document.getElementById("btn-wipe").addEventListener("click", wipeAllStats);
         modeSelect.addEventListener("change", handleModeChange);
+        diffSelect.addEventListener("change", handleDifficultyChange);
 
         // Core App Memory State
         let board = ["", "", "", "", "", "", "", "", ""];
@@ -220,6 +251,19 @@
             [0, 4, 8], [2, 4, 6]             // Diagonals
         ];
 
+        const trashTalk = [
+            "Calculating your loss...",
+            "A chess grandmaster couldn't win this.",
+            "Why do you even try?",
+            "Analyzing flawed human matrix...",
+            "This match was over before it started."
+        ];
+
+        function logToTerminal(text, color = "#23a55a") {
+            terminalElement.style.color = color;
+            terminalElement.innerText = `> ${text}`;
+        }
+
         function handleCellClick(e) {
             const index = parseInt(e.target.getAttribute("data-index"));
 
@@ -230,8 +274,13 @@
             makeMove(index, "X");
             
             if (isGameActive && modeSelect.value === "bot") {
-                statusElement.innerText = "Bot is calculating...";
-                setTimeout(triggerBotMove, 400); // Slight delay so the bot feels natural
+                if (diffSelect.value === "impossible") {
+                    statusElement.innerText = "⚡ BOT IS SIMULATING 10,000 OUTCOMES...";
+                    statusElement.style.color = "#f23f43";
+                } else {
+                    statusElement.innerText = "Bot is calculating...";
+                }
+                setTimeout(triggerBotMove, diffSelect.value === "impossible" ? 250 : 400); 
             }
         }
 
@@ -241,23 +290,37 @@
             cells[index].classList.add(player);
             
             if (checkWin(board, player)) {
-                statusElement.innerText = modeSelect.value === "bot" && player === "O" ? "Bot Wins!" : `Player ${player} Wins!`;
+                if (modeSelect.value === "bot" && player === "O") {
+                    statusElement.innerText = diffSelect.value === "impossible" ? "💀 DEFEAT. ENTERING IDLE MODE." : "Bot Wins!";
+                    logToTerminal("EASY WIN. TRY LOWERING THE DIFFICULTY.", "#da373c");
+                } else {
+                    statusElement.innerText = `Player ${player} Wins!`;
+                    logToTerminal("ERROR: Human bypass detected.");
+                }
                 stats[player.toLowerCase()]++;
                 updateStatsUI();
                 isGameActive = false;
+                boardElement.classList.remove("impossible-rage");
                 return;
             }
 
             if (!board.includes("")) {
                 statusElement.innerText = "Tie Match!";
+                logToTerminal("TIE DETECTED. OPTIMAL OUTCOME SECURED.", "#faa61a");
                 stats.ties++;
                 updateStatsUI();
                 isGameActive = false;
+                boardElement.classList.remove("impossible-rage");
                 return;
             }
 
             currentPlayer = currentPlayer === "X" ? "O" : "X";
-            statusElement.innerText = modeSelect.value === "bot" ? "Your Turn (X)" : `Player ${currentPlayer}'s Turn`;
+            if (modeSelect.value === "bot") {
+                statusElement.innerText = "Your Turn (X)";
+                statusElement.style.color = "#fff";
+            } else {
+                statusElement.innerText = `Player ${currentPlayer}'s Turn`;
+            }
         }
 
         /* --- BOT AI LOGIC MODULE --- */
@@ -267,11 +330,20 @@
             let targetIndex;
 
             if (difficulty === "easy") {
+                logToTerminal("Picking random matrix index...");
                 targetIndex = getRandomMove();
             } else if (difficulty === "medium") {
+                logToTerminal("Scanning for immediate threats...");
                 targetIndex = getMediumMove();
             } else {
-                // Hard / Unbeatable via Minimax Logic
+                // Hard & Impossible Mode both invoke the perfect predictive algorithm tree
+                if (difficulty === "impossible") {
+                    const insult = trashTalk[Math.floor(Math.random() * trashTalk.length)];
+                    logToTerminal(insult, "#f23f43");
+                } else {
+                    logToTerminal("Running Minimax calculations...");
+                }
+
                 let bestScore = -Infinity;
                 for (let i = 0; i < 9; i++) {
                     if (board[i] === "") {
@@ -297,7 +369,6 @@
         }
 
         function getMediumMove() {
-            // 1. Can the bot win in this turn?
             for(let i=0; i<9; i++) {
                 if(board[i] === "") {
                     board[i] = "O";
@@ -305,7 +376,6 @@
                     board[i] = "";
                 }
             }
-            // 2. Block the player from winning
             for(let i=0; i<9; i++) {
                 if(board[i] === "") {
                     board[i] = "X";
@@ -313,11 +383,9 @@
                     board[i] = "";
                 }
             }
-            // 3. Fallback to random
             return getRandomMove();
         }
 
-        // Minimax function evaluation tree
         function minimax(tempBoard, depth, isMaximizing) {
             if (checkWin(tempBoard, "O")) return 10 - depth;
             if (checkWin(tempBoard, "X")) return depth - 10;
@@ -359,9 +427,24 @@
             if (modeSelect.value === "local") {
                 diffSelect.style.display = "none";
                 diffLabel.style.display = "none";
+                document.getElementById("terminal-section").style.display = "none";
+                boardElement.classList.remove("impossible-rage");
             } else {
                 diffSelect.style.display = "block";
                 diffLabel.style.display = "block";
+                document.getElementById("terminal-section").style.display = "flex";
+                handleDifficultyChange();
+            }
+            resetBoard();
+        }
+
+        function handleDifficultyChange() {
+            if (diffSelect.value === "impossible" && modeSelect.value === "bot") {
+                boardElement.classList.add("impossible-rage");
+                logToTerminal("WARNING: IMPOSSIBLE INTERFACE ENGAGED.", "#f23f43");
+            } else {
+                boardElement.classList.remove("impossible-rage");
+                logToTerminal("System ready.");
             }
             resetBoard();
         }
@@ -377,10 +460,14 @@
             currentPlayer = "X";
             isGameActive = true;
             statusElement.innerText = "Your Turn (X)";
+            statusElement.style.color = "#fff";
             cells.forEach(cell => {
                 cell.innerText = "";
                 cell.classList.remove("X", "O");
             });
+            if (diffSelect.value === "impossible" && modeSelect.value === "bot") {
+                logToTerminal("AWAITING INEVITABLE HUMAN ERROR...", "#f23f43");
+            }
         }
 
         function wipeAllStats() {
