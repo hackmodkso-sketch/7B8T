@@ -3,202 +3,393 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe</title>
+    <title>Tic-Tac-Toe Admin & Bot Edition</title>
     <style>
         body {
             margin: 0;
-            background: #111;
+            background: #1e1f22;
+            color: #dbdee1;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            align-items: stretch;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Admin Sidebar Layout */
+        #admin-sidebar {
+            width: 280px;
+            background: #2b2d31;
+            border-right: 2px solid #111214;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.2);
+        }
+
+        h2, h3 {
+            margin: 0;
             color: #fff;
-            font-family: sans-serif;
+            letter-spacing: 0.5px;
+        }
+
+        h2 { border-bottom: 2px solid #35373c; padding-bottom: 10px; font-size: 20px; }
+        h3 { font-size: 14px; text-transform: uppercase; color: #949ba4; }
+
+        .admin-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #313338;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        select, button {
+            background: #1e1f22;
+            color: #fff;
+            border: 1px solid #4e5058;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        select:focus { border-color: #5865f2; }
+
+        button.primary {
+            background: #5865f2;
+            border: none;
+            font-weight: bold;
+        }
+        button.primary:hover { background: #4752c4; }
+        
+        button.danger {
+            background: #da373c;
+            border: none;
+            font-weight: bold;
+        }
+        button.danger:hover { background: #a92b2f; }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 4px 0;
+            border-bottom: 1px solid #3f4147;
+        }
+        .stat-line:last-child { border: none; }
+
+        /* Main Game Arena */
+        #game-container {
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            min-height: 100vh;
+            background: #1e1f22;
+            position: relative;
         }
-        h1 {
-            margin-bottom: 5px;
-            letter-spacing: 2px;
-        }
+
         #status {
-            font-size: 20px;
-            margin-bottom: 20px;
-            color: #888;
-            height: 24px;
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 24px;
+            color: #fff;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
         }
+
         .board {
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 10px;
-            background: #23272a;
-            padding: 10px;
-            border-radius: 10px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            grid-template-columns: repeat(3, 110px);
+            grid-template-rows: repeat(3, 110px);
+            gap: 12px;
+            background: #2b2d31;
+            padding: 15px;
+            border-radius: 12px;
+            box-shadow: 0 12px 36px rgba(0,0,0,0.4);
         }
+
         .cell {
-            background: #2c2f33;
+            background: #313338;
             border: none;
             border-radius: 8px;
-            font-size: 40px;
-            font-weight: bold;
+            font-size: 48px;
+            font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background 0.2s, transform 0.1s;
+            transition: background 0.2s, transform 0.1s, color 0.2s;
         }
-        .cell:hover {
-            background: #393e46;
-        }
-        .cell:active {
-            transform: scale(0.95);
-        }
-        .cell.X {
-            color: #5865F2;
-            text-shadow: 0 0 10px rgba(88, 101, 242, 0.5);
-        }
-        .cell.O {
-            color: #F04747;
-            text-shadow: 0 0 10px rgba(240, 71, 71, 0.5);
-        }
-        #btn-reset {
-            margin-top: 25px;
-            padding: 10px 25px;
-            font-size: 16px;
-            font-weight: bold;
-            background: #43B581;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            box-shadow: 0 4px 10px rgba(67, 181, 129, 0.3);
-            transition: background 0.2s, transform 0.1s;
-        }
-        #btn-reset:hover {
-            background: #3ca374;
-        }
-        #btn-reset:active {
-            transform: scale(0.98);
-        }
+
+        .cell:hover { background: #35373c; }
+        .cell:active { transform: scale(0.96); }
+
+        .cell.X { color: #5865f2; text-shadow: 0 0 15px rgba(88,101,242,0.4); }
+        .cell.O { color: #f23f43; text-shadow: 0 0 15px rgba(242,63,67,0.4); }
     </style>
 </head>
 <body>
 
-    <h1>TIC-TAC-TOE</h1>
-    <div id="status">Player X's Turn</div>
+    <!-- ADMINISTRATION SIDEBAR PANEL -->
+    <div id="admin-sidebar">
+        <h2>Admin Dashboard</h2>
+        
+        <!-- Match Setup Mode -->
+        <div class="admin-section">
+            <h3>Game Mode</h3>
+            <label for="gameMode">Opponent Type:</label>
+            <select id="gameMode">
+                <option value="bot">AI Bot (vs Computer)</option>
+                <option value="local">Local 2 Players</option>
+            </select>
+            
+            <label for="botDifficulty" id="diff-label">Bot Intelligence:</label>
+            <select id="botDifficulty">
+                <option value="easy">Easy (Random moves)</option>
+                <option value="medium">Medium (Blocks wins)</option>
+                <option value="unbeatable">Hard (Minimax Algorithm)</option>
+            </select>
+        </div>
 
-    <div class="board" id="board">
-        <button class="cell" data-index="0"></button>
-        <button class="cell" data-index="1"></button>
-        <button class="cell" data-index="2"></button>
-        <button class="cell" data-index="3"></button>
-        <button class="cell" data-index="4"></button>
-        <button class="cell" data-index="5"></button>
-        <button class="cell" data-index="6"></button>
-        <button class="cell" data-index="7"></button>
-        <button class="cell" data-index="8"></button>
+        <!-- Real-time Stats Tracker -->
+        <div class="admin-section">
+            <h3>Server Statistics</h3>
+            <div class="stat-line"><span>Player X Wins:</span><span id="stat-x">0</span></div>
+            <div class="stat-line"><span>Player O / Bot:</span><span id="stat-o">0</span></div>
+            <div class="stat-line"><span>Ties/Draws:</span><span id="stat-ties">0</span></div>
+        </div>
+
+        <!-- Administrative Controls -->
+        <div class="admin-section" style="margin-top: auto;">
+            <h3>System Controls</h3>
+            <button id="btn-reset" class="primary">Clear Board</button>
+            <button id="btn-wipe" class="danger">Reset All Stats</button>
+        </div>
     </div>
 
-    <button id="btn-reset">Reset Game</button>
+    <!-- MAIN GAME FIELD INTERFACE -->
+    <div id="game-container">
+        <div id="status">Your Turn (X)</div>
+
+        <div class="board" id="board">
+            <button class="cell" data-index="0"></button>
+            <button class="cell" data-index="1"></button>
+            <button class="cell" data-index="2"></button>
+            <button class="cell" data-index="3"></button>
+            <button class="cell" data-index="4"></button>
+            <button class="cell" data-index="5"></button>
+            <button class="cell" data-index="6"></button>
+            <button class="cell" data-index="7"></button>
+            <button class="cell" data-index="8"></button>
+        </div>
+    </div>
 
     <script>
         const boardElement = document.getElementById("board");
         const statusElement = document.getElementById("status");
-        const resetBtn = document.getElementById("btn-reset");
+        const modeSelect = document.getElementById("gameMode");
+        const diffSelect = document.getElementById("botDifficulty");
+        const diffLabel = document.getElementById("diff-label");
         const cells = document.querySelectorAll(".cell");
+        
+        // Buttons
+        document.getElementById("btn-reset").addEventListener("click", resetBoard);
+        document.getElementById("btn-wipe").addEventListener("click", wipeAllStats);
+        modeSelect.addEventListener("change", handleModeChange);
 
+        // Core App Memory State
         let board = ["", "", "", "", "", "", "", "", ""];
         let currentPlayer = "X";
         let isGameActive = true;
+        
+        let stats = { x: 0, o: 0, ties: 0 };
 
-        const winningConditions = [
-            [0, 1, 2], // Rows
-            [3, 4, 5],
-            [6, 7, 8],
-            [0, 3, 6], // Columns
-            [1, 4, 7],
-            [2, 5, 8],
-            [0, 4, 8], // Diagonals
-            [2, 4, 6]
+        const winPatterns = [
+            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Horizontals
+            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Verticals
+            [0, 4, 8], [2, 4, 6]             // Diagonals
         ];
 
         function handleCellClick(e) {
-            const clickedCell = e.target;
-            const clickedCellIndex = parseInt(clickedCell.getAttribute("data-index"));
+            const index = parseInt(e.target.getAttribute("data-index"));
 
-            // Check if cell is occupied or game is over
-            if (board[clickedCellIndex] !== "" || !isGameActive) {
+            if (board[index] !== "" || !isGameActive || (currentPlayer === "O" && modeSelect.value === "bot")) {
                 return;
             }
 
-            updateCell(clickedCell, clickedCellIndex);
-            validateResult();
+            makeMove(index, "X");
+            
+            if (isGameActive && modeSelect.value === "bot") {
+                statusElement.innerText = "Bot is calculating...";
+                setTimeout(triggerBotMove, 400); // Slight delay so the bot feels natural
+            }
         }
 
-        function updateCell(cell, index) {
-            board[index] = currentPlayer;
-            cell.innerText = currentPlayer;
-            cell.classList.add(currentPlayer);
-        }
+        function makeMove(index, player) {
+            board[index] = player;
+            cells[index].innerText = player;
+            cells[index].classList.add(player);
+            
+            if (checkWin(board, player)) {
+                statusElement.innerText = modeSelect.value === "bot" && player === "O" ? "Bot Wins!" : `Player ${player} Wins!`;
+                stats[player.toLowerCase()]++;
+                updateStatsUI();
+                isGameActive = false;
+                return;
+            }
 
-        function changePlayer() {
+            if (!board.includes("")) {
+                statusElement.innerText = "Tie Match!";
+                stats.ties++;
+                updateStatsUI();
+                isGameActive = false;
+                return;
+            }
+
             currentPlayer = currentPlayer === "X" ? "O" : "X";
-            statusElement.innerText = `Player ${currentPlayer}'s Turn`;
+            statusElement.innerText = modeSelect.value === "bot" ? "Your Turn (X)" : `Player ${currentPlayer}'s Turn`;
         }
 
-        function validateResult() {
-            let roundWon = false;
+        /* --- BOT AI LOGIC MODULE --- */
+        function triggerBotMove() {
+            if (!isGameActive) return;
+            const difficulty = diffSelect.value;
+            let targetIndex;
 
-            for (let i = 0; i < winningConditions.length; i++) {
-                const winCondition = winningConditions[i];
-                let a = board[winCondition[0]];
-                let b = board[winCondition[1]];
-                let c = board[winCondition[2]];
-
-                if (a === "" || b === "" || c === "") {
-                    continue;
+            if (difficulty === "easy") {
+                targetIndex = getRandomMove();
+            } else if (difficulty === "medium") {
+                targetIndex = getMediumMove();
+            } else {
+                // Hard / Unbeatable via Minimax Logic
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === "") {
+                        board[i] = "O";
+                        let score = minimax(board, 0, false);
+                        board[i] = "";
+                        if (score > bestScore) {
+                            bestScore = score;
+                            targetIndex = i;
+                        }
+                    }
                 }
-                if (a === b && b === c) {
-                    roundWon = true;
-                    break;
-                }
             }
 
-            if (roundWon) {
-                statusElement.innerText = `Player ${currentPlayer} Wins!`;
-                statusElement.style.color = currentPlayer === "X" ? "#5865F2" : "#F04747";
-                isGameActive = false;
-                return;
+            if (targetIndex !== undefined && targetIndex !== -1) {
+                makeMove(targetIndex, "O");
             }
-
-            // Check for Tie
-            let roundDraw = !board.includes("");
-            if (roundDraw) {
-                statusElement.innerText = "It's a Tie Game!";
-                statusElement.style.color = "#FAA61A";
-                isGameActive = false;
-                return;
-            }
-
-            changePlayer();
         }
 
-        function resetGame() {
+        function getRandomMove() {
+            let empties = board.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
+            return empties[Math.floor(Math.random() * empties.length)];
+        }
+
+        function getMediumMove() {
+            // 1. Can the bot win in this turn?
+            for(let i=0; i<9; i++) {
+                if(board[i] === "") {
+                    board[i] = "O";
+                    if(checkWin(board, "O")) { board[i] = ""; return i; }
+                    board[i] = "";
+                }
+            }
+            // 2. Block the player from winning
+            for(let i=0; i<9; i++) {
+                if(board[i] === "") {
+                    board[i] = "X";
+                    if(checkWin(board, "X")) { board[i] = ""; return i; }
+                    board[i] = "";
+                }
+            }
+            // 3. Fallback to random
+            return getRandomMove();
+        }
+
+        // Minimax function evaluation tree
+        function minimax(tempBoard, depth, isMaximizing) {
+            if (checkWin(tempBoard, "O")) return 10 - depth;
+            if (checkWin(tempBoard, "X")) return depth - 10;
+            if (!tempBoard.includes("")) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (tempBoard[i] === "") {
+                        tempBoard[i] = "O";
+                        let score = minimax(tempBoard, depth + 1, false);
+                        tempBoard[i] = "";
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (tempBoard[i] === "") {
+                        tempBoard[i] = "X";
+                        let score = minimax(tempBoard, depth + 1, true);
+                        tempBoard[i] = "";
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
+        }
+
+        function checkWin(b, player) {
+            return winPatterns.some(pattern => {
+                return pattern.every(index => b[index] === player);
+            });
+        }
+
+        /* --- CONTROL FUNCTIONS --- */
+        function handleModeChange() {
+            if (modeSelect.value === "local") {
+                diffSelect.style.display = "none";
+                diffLabel.style.display = "none";
+            } else {
+                diffSelect.style.display = "block";
+                diffLabel.style.display = "block";
+            }
+            resetBoard();
+        }
+
+        function updateStatsUI() {
+            document.getElementById("stat-x").innerText = stats.x;
+            document.getElementById("stat-o").innerText = stats.o;
+            document.getElementById("stat-ties").innerText = stats.ties;
+        }
+
+        function resetBoard() {
             board = ["", "", "", "", "", "", "", "", ""];
             currentPlayer = "X";
             isGameActive = true;
-            statusElement.innerText = "Player X's Turn";
-            statusElement.style.color = "#888";
-            
+            statusElement.innerText = "Your Turn (X)";
             cells.forEach(cell => {
                 cell.innerText = "";
                 cell.classList.remove("X", "O");
             });
         }
 
+        function wipeAllStats() {
+            stats = { x: 0, o: 0, ties: 0 };
+            updateStatsUI();
+            resetBoard();
+        }
+
         boardElement.addEventListener("click", handleCellClick);
-        resetBtn.addEventListener("click", resetGame);
     </script>
 </body>
 </html>
