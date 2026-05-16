@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tic-Tac-Toe: Learn-AI & Chatbot Core</title>
+    <title>Tic-Tac-Toe Admin & Bot Edition</title>
     <style>
         body {
             margin: 0;
@@ -14,21 +14,101 @@
             align-items: stretch;
             min-height: 100vh;
             overflow-x: hidden;
+            transition: filter 0.1s ease;
         }
 
-        /* Layout Panels */
+        /* Glitch effects for Sabotage Mode */
+        body.glitching {
+            filter: invert(1) hue-rotate(180deg);
+        }
+
+        /* Admin Sidebar Layout */
         #admin-sidebar {
-            width: 300px;
+            width: 280px;
             background: #2b2d31;
             border-right: 2px solid #111214;
             padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 20px;
             box-shadow: 5px 0 15px rgba(0,0,0,0.2);
             z-index: 10;
         }
 
+        h2, h3 {
+            margin: 0;
+            color: #fff;
+            letter-spacing: 0.5px;
+        }
+
+        h2 { border-bottom: 2px solid #35373c; padding-bottom: 10px; font-size: 20px; }
+        h3 { font-size: 14px; text-transform: uppercase; color: #949ba4; }
+
+        .admin-section {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            background: #313338;
+            padding: 12px;
+            border-radius: 6px;
+        }
+
+        label {
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        select, button {
+            background: #1e1f22;
+            color: #fff;
+            border: 1px solid #4e5058;
+            padding: 8px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+        }
+
+        select:focus { border-color: #5865f2; }
+
+        button.primary {
+            background: #5865f2;
+            border: none;
+            font-weight: bold;
+        }
+        button.primary:hover { background: #4752c4; }
+        
+        button.danger {
+            background: #da373c;
+            border: none;
+            font-weight: bold;
+        }
+        button.danger:hover { background: #a92b2f; }
+
+        .stat-line {
+            display: flex;
+            justify-content: space-between;
+            font-size: 14px;
+            padding: 4px 0;
+            border-bottom: 1px solid #3f4147;
+        }
+        .stat-line:last-child { border: none; }
+
+        /* Bot Console Terminal */
+        #bot-terminal {
+            background: #111214;
+            color: #23a55a;
+            font-family: monospace;
+            font-size: 12px;
+            padding: 8px;
+            border-radius: 4px;
+            height: 60px;
+            overflow-y: auto;
+            border: 1px solid #23272a;
+        }
+
+        /* Main Game Arena */
         #game-container {
             flex-grow: 1;
             display: flex;
@@ -37,155 +117,123 @@
             justify-content: center;
             background: #1e1f22;
             position: relative;
-            padding: 20px;
         }
 
-        #chat-sidebar {
-            width: 320px;
-            background: #2b2d31;
-            border-left: 2px solid #111214;
-            display: flex;
-            flex-direction: column;
-            box-shadow: -5px 0 15px rgba(0,0,0,0.2);
-        }
-
-        /* Common UI Elements */
-        h2, h3 { margin: 0; color: #fff; letter-spacing: 0.5px; }
-        h2 { border-bottom: 2px solid #35373c; padding-bottom: 10px; font-size: 18px; }
-        h3 { font-size: 12px; text-transform: uppercase; color: #949ba4; }
-
-        .admin-section {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            background: #313338;
-            padding: 12px;
-            border-radius: 6px;
-        }
-
-        label { font-size: 12px; font-weight: 600; }
-        select, button, input {
-            background: #1e1f22;
+        #status {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 24px;
             color: #fff;
-            border: 1px solid #4e5058;
-            padding: 8px;
-            border-radius: 4px;
-            font-size: 13px;
-            outline: none;
-        }
-        button { cursor: pointer; font-weight: bold; transition: background 0.2s; }
-        button.primary { background: #5865f2; border: none; }
-        button.primary:hover { background: #4752c4; }
-        button.danger { background: #da373c; border: none; }
-        button.danger:hover { background: #a92b2f; }
-
-        /* Terminals & Monitors */
-        .terminal {
-            background: #111214;
-            color: #23a55a;
-            font-family: monospace;
-            font-size: 11px;
-            padding: 8px;
-            border-radius: 4px;
-            height: 75px;
-            overflow-y: auto;
-            border: 1px solid #23272a;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            transition: all 0.2s ease;
         }
 
-        /* Board Elements */
-        #status { font-size: 22px; font-weight: bold; margin-bottom: 20px; color: #fff; }
         .board {
             display: grid;
-            grid-template-columns: repeat(3, 100px);
-            grid-template-rows: repeat(3, 100px);
-            gap: 10px;
+            grid-template-columns: repeat(3, 110px);
+            grid-template-rows: repeat(3, 110px);
+            gap: 12px;
             background: #2b2d31;
             padding: 15px;
             border-radius: 12px;
             box-shadow: 0 12px 36px rgba(0,0,0,0.4);
-            border: 2px solid #5865f2;
+            transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), border 0.3s, box-shadow 0.3s;
+            border: 2px solid transparent;
         }
+
+        /* Rage Visual States */
+        .board.impossible-rage {
+            border-color: #f23f43;
+            box-shadow: 0 0 25px rgba(242, 63, 67, 0.4);
+        }
+
+        .board.sabotage-rage {
+            border-color: #a333ff;
+            box-shadow: 0 0 35px rgba(163, 51, 255, 0.6);
+            animation: matrix-vibe 4s infinite alternate;
+        }
+
+        @keyframes matrix-vibe {
+            0% { transform: scale(1) rotate(0deg); }
+            50% { transform: scale(0.98) rotate(0.5deg); }
+            100% { transform: scale(1.02) rotate(-0.5deg); }
+        }
+
         .cell {
             background: #313338;
             border: none;
             border-radius: 8px;
-            font-size: 40px;
+            font-size: 48px;
             font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
+            transition: background 0.2s, transform 0.1s, color 0.2s, filter 0.2s;
         }
-        .cell.X { color: #5865f2; }
-        .cell.O { color: #f23f43; }
 
-        /* AI Interactive Chat Component */
-        .chat-header { padding: 15px; border-bottom: 1px solid #111214; background: #313338; }
-        #chat-messages {
-            flex-grow: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            max-height: calc(100vh - 140px);
-        }
-        .msg { padding: 8px 12px; border-radius: 6px; max-width: 80%; font-size: 13px; line-height: 1.4; }
-        .msg.user { background: #5865f2; color: white; align-self: flex-end; }
-        .msg.bot { background: #383a40; color: #dbdee1; align-self: flex-start; }
-        .chat-input-area {
-            padding: 10px;
-            background: #313338;
-            border-top: 1px solid #111214;
-            display: flex;
-            gap: 8px;
-        }
-        #chat-input { flex-grow: 1; border-radius: 4px; }
+        .cell:hover { background: #35373c; }
+        .cell:active { transform: scale(0.96); }
+
+        .cell.X { color: #5865f2; text-shadow: 0 0 15px rgba(88,101,242,0.4); }
+        .cell.O { color: #f23f43; text-shadow: 0 0 15px rgba(242,63,67,0.4); }
+        
+        /* Sabotage CSS Distortions */
+        .cell.blurred { filter: blur(6px); }
+        .cell.fake-x::after { content: "X"; color: #4e5058; opacity: 0.3; font-size: 24px; position: absolute; }
     </style>
 </head>
 <body>
 
-    <!-- LEFT PANEL: ADMIN & MOVE DATABASE MONITOR -->
+    <!-- ADMINISTRATION SIDEBAR PANEL -->
     <div id="admin-sidebar">
-        <h2>System Dashboard</h2>
+        <h2>Admin Dashboard</h2>
         
+        <!-- Match Setup Mode -->
         <div class="admin-section">
-            <h3>Engine Mode</h3>
-            <label>Current Opponent:</label>
+            <h3>Game Mode</h3>
+            <label for="gameMode">Opponent Type:</label>
+            <select id="gameMode">
+                <option value="bot">AI Bot (vs Computer)</option>
+                <option value="local">Local 2 Players</option>
+            </select>
+            
+            <label for="botDifficulty" id="diff-label">Bot Intelligence:</label>
             <select id="botDifficulty">
-                <option value="learn-ai">🧠 learn-ai Engine (Self-Learning)</option>
-                <option value="easy">Standard Bot (Static/Easy)</option>
+                <option value="easy">Easy (Random moves)</option>
+                <option value="medium">Medium (Blocks wins)</option>
+                <option value="unbeatable">Hard (Standard AI)</option>
+                <option value="impossible">🔴 IMPOSSIBLE MODE</option>
+                <option value="sabotage">⚠️ HACKER SABOTAGE</option>
             </select>
         </div>
 
-        <div class="admin-section">
-            <h3>learn-ai Move Database</h3>
-            <div class="terminal" id="db-terminal">> Loading tables...</div>
-            <div style="font-size: 11px; color:#949ba4; display:flex; justify-content:space-between; margin-top:5px;">
-                <span>Unique States: <b id="db-states-count">0</b></span>
-                <span>Total Moves: <b id="db-moves-count">0</b></span>
-            </div>
+        <!-- Bot Live Output Logs -->
+        <div class="admin-section" id="terminal-section">
+            <h3>Bot Core Logs</h3>
+            <div id="bot-terminal">> System ready.</div>
         </div>
 
+        <!-- Real-time Stats Tracker -->
         <div class="admin-section">
-            <h3>Session Analytics</h3>
-            <div style="font-size:13px; display:flex; flex-direction:column; gap:4px;">
-                <div style="display:flex; justify-content:space-between;"><span>Human (X) Wins:</span><span id="stat-x">0</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>AI (O) Wins:</span><span id="stat-o">0</span></div>
-                <div style="display:flex; justify-content:space-between;"><span>Total Matches Cached:</span><span id="stat-ties">0</span></div>
-            </div>
+            <h3>Server Statistics</h3>
+            <div class="stat-line"><span>Player X Wins:</span><span id="stat-x">0</span></div>
+            <div class="stat-line"><span>Player O / Bot:</span><span id="stat-o">0</span></div>
+            <div class="stat-line"><span>Ties/Draws:</span><span id="stat-ties">0</span></div>
         </div>
 
+        <!-- Administrative Controls -->
         <div class="admin-section" style="margin-top: auto;">
-            <h3>Database Operations</h3>
-            <button id="btn-reset" class="primary">Clear Current Board</button>
-            <button id="btn-wipe" class="danger">Wipe Learn-AI Memory</button>
+            <h3>System Controls</h3>
+            <button id="btn-reset" class="primary">Clear Board</button>
+            <button id="btn-wipe" class="danger">Reset All Stats</button>
         </div>
     </div>
 
-    <!-- CENTER PANEL: TIC-TAC-TOE FIELD -->
+    <!-- MAIN GAME FIELD INTERFACE -->
     <div id="game-container">
         <div id="status">Your Turn (X)</div>
+
         <div class="board" id="board">
             <button class="cell" data-index="0"></button>
             <button class="cell" data-index="1"></button>
@@ -199,334 +247,330 @@
         </div>
     </div>
 
-    <!-- RIGHT PANEL: LINGUISTIC LEARNING CHATBOT -->
-    <div id="chat-sidebar">
-        <div class="chat-header">
-            <h2>Linguistic AI Companion</h2>
-            <p style="margin:4px 0 0 0; font-size:11px; color:#23a55a;" id="chat-db-status">Linguistic Database: Active</p>
-        </div>
-        <div id="chat-messages">
-            <div class="msg bot">Hello! I am a blank slate language model. Speak to me in any language, phrases, or slang. I will index your vocabulary, link your words together, and mirror your style.</div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="chat-input" placeholder="Type a message..." autocomplete="off">
-            <button id="chat-send" class="primary">Send</button>
-        </div>
-    </div>
-
     <script>
-        // --- STORAGE KEYS ---
-        const MOVE_DB_KEY = "ttt_learn_ai_moves";
-        const LING_DB_KEY = "chat_linguistic_database";
-        const STATS_KEY   = "ttt_game_stats_cache";
-
-        // --- CORE STATE MANAGERS ---
-        let board = ["", "", "", "", "", "", "", "", ""];
-        let isGameActive = true;
-        let matchHistory = []; // Keeps track of moves made in the current round
-        
-        // --- COMPONENT LOOKUPS ---
         const boardElement = document.getElementById("board");
         const statusElement = document.getElementById("status");
+        const modeSelect = document.getElementById("gameMode");
         const diffSelect = document.getElementById("botDifficulty");
-        const dbTerminal = document.getElementById("db-terminal");
+        const diffLabel = document.getElementById("diff-label");
+        const terminalElement = document.getElementById("bot-terminal");
         const cells = document.querySelectorAll(".cell");
+        
+        // Buttons
+        document.getElementById("btn-reset").addEventListener("click", resetBoard);
+        document.getElementById("btn-wipe").addEventListener("click", wipeAllStats);
+        modeSelect.addEventListener("change", handleModeChange);
+        diffSelect.addEventListener("change", handleDifficultyChange);
 
-        // --- INITIALIZE PERSISTENT LOCAL DATABASES ---
-        let moveDatabase = JSON.parse(localStorage.getItem(MOVE_DB_KEY)) || {};
-        let lingDatabase = JSON.parse(localStorage.getItem(LING_DB_KEY)) || {
-            vocabulary: [],
-            phrases: {},
-            lastUserInputs: []
-        };
-        let globalStats = JSON.parse(localStorage.getItem(STATS_KEY)) || { x: 0, o: 0, ties: 0 };
+        // Core App Memory State
+        let board = ["", "", "", "", "", "", "", "", ""];
+        let currentPlayer = "X";
+        let isGameActive = true;
+        let stats = { x: 0, o: 0, ties: 0 };
 
-        // --- DATA MONITORS UPON STARTUP ---
-        function saveMoveDatabase() {
-            localStorage.setItem(MOVE_DB_KEY, JSON.stringify(moveDatabase));
-            updateDatabaseUI();
-        }
-
-        function saveLinguisticDatabase() {
-            localStorage.setItem(LING_DB_KEY, JSON.stringify(lingDatabase));
-        }
-
-        function updateDatabaseUI() {
-            const keysCount = Object.keys(moveDatabase).length;
-            let totalWeightCount = 0;
-            Object.values(moveDatabase).forEach(boardState => {
-                Object.values(boardState).forEach(weight => totalWeightCount += weight);
-            });
-            document.getElementById("db-states-count").innerText = keysCount;
-            document.getElementById("db-moves-count").innerText = totalWeightCount;
-            
-            document.getElementById("stat-x").innerText = globalStats.x;
-            document.getElementById("stat-o").innerText = globalStats.o;
-            document.getElementById("stat-ties").innerText = globalStats.ties;
-        }
-
-        // --- GAME MECHANICS CORE ---
         const winPatterns = [
-            [0, 1, 2], [3, 4, 5], [6, 7, 8], // Rows
-            [0, 3, 6], [1, 4, 7], [2, 5, 8], // Columns
-            [0, 4, 8], [2, 4, 6]             // Diagonals
+            [0, 1, 2], [3, 4, 5], [6, 7, 8],
+            [0, 3, 6], [1, 4, 7], [2, 5, 8],
+            [0, 4, 8], [2, 4, 6]
         ];
+
+        const sabotageInsults = [
+            "Injecting CSS distortions...",
+            "Altering grid matrices...",
+            "Corrupting click registers...",
+            "Intercepting DOM interactions...",
+            "Executing interface bypass..."
+        ];
+
+        function logToTerminal(text, color = "#23a55a") {
+            terminalElement.style.color = color;
+            terminalElement.innerText = `> ${text}`;
+        }
 
         function handleCellClick(e) {
             const index = parseInt(e.target.getAttribute("data-index"));
-            if (board[index] !== "" || !isGameActive) return;
 
-            // Log current board snapshot state *before* move occurs
-            const stateString = board.map(val => val === "" ? "-" : val).join("");
-            matchHistory.push({ state: stateString, move: index, player: "X" });
+            if (board[index] !== "" || !isGameActive || (currentPlayer === "O" && modeSelect.value === "bot")) {
+                return;
+            }
 
-            executeMove(index, "X");
+            // Sabotage Mechanic 1: Random 15% chance your click drops into an adjacent square instead
+            if (diffSelect.value === "sabotage" && modeSelect.value === "bot" && Math.random() < 0.15) {
+                let emptyIndices = board.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
+                if (emptyIndices.length > 1) {
+                    const hijackedIndex = emptyIndices[Math.floor(Math.random() * emptyIndices.length)];
+                    logToTerminal("PACKET LOSS: MOVE MISALIGNED.", "#a333ff");
+                    makeMove(hijackedIndex, "X");
+                    triggerPostPlayerActions();
+                    return;
+                }
+            }
 
-            if (isGameActive) {
-                statusElement.innerText = "Engine processing data...";
-                setTimeout(triggerEngineMove, 400);
+            makeMove(index, "X");
+            triggerPostPlayerActions();
+        }
+
+        function triggerPostPlayerActions() {
+            if (isGameActive && modeSelect.value === "bot") {
+                if (diffSelect.value === "sabotage") {
+                    statusElement.innerText = "⚠️ CORRUPTING RUNTIME ENVIRONMENT...";
+                    statusElement.style.color = "#a333ff";
+                    // Apply visual board distortion on player move
+                    applyVisualSabotage();
+                } else if (diffSelect.value === "impossible") {
+                    statusElement.innerText = "⚡ BOT IS SIMULATING 10,000 OUTCOMES...";
+                    statusElement.style.color = "#f23f43";
+                } else {
+                    statusElement.innerText = "Bot is calculating...";
+                }
+                setTimeout(triggerBotMove, diffSelect.value === "sabotage" ? 300 : 450); 
             }
         }
 
-        function executeMove(index, player) {
+        function applyVisualSabotage() {
+            // Sabotage Mechanic 2: Random UI blur, rotations, or flashbangs
+            const rng = Math.random();
+            if (rng < 0.35) {
+                // Blur random empty cells to trick your eyes
+                cells.forEach(c => {
+                    if (c.innerText === "" && Math.random() < 0.4) c.classList.add("blurred");
+                });
+                logToTerminal("Blur filter applied to board nodes.", "#a333ff");
+            } else if (rng < 0.65) {
+                // Temporarily tilt the entire grid structure
+                const angle = (Math.random() * 20 - 10).toFixed(1);
+                boardElement.style.transform = `rotate(${angle}deg) scale(0.95)`;
+                logToTerminal(`Matrix coordinates transformed by ${angle}deg.`, "#a333ff");
+            } else {
+                // Brief flashbang invert effect
+                document.body.classList.add("glitching");
+                setTimeout(() => document.body.classList.remove("glitching"), 150);
+                logToTerminal("System voltage overload simulated.", "#a333ff");
+            }
+        }
+
+        function clearVisualSabotage() {
+            cells.forEach(c => c.classList.remove("blurred", "fake-x"));
+            boardElement.style.transform = "none";
+            document.body.classList.remove("glitching");
+        }
+
+        function makeMove(index, player) {
             board[index] = player;
             cells[index].innerText = player;
+            cells[index].classList.remove("blurred", "fake-x");
             cells[index].classList.add(player);
-
+            
             if (checkWin(board, player)) {
-                statusElement.innerText = player === "X" ? "Human Wins!" : "AI Wins!";
+                if (modeSelect.value === "bot" && player === "O") {
+                    statusElement.innerText = diffSelect.value === "sabotage" ? "🚫 COMPROMISED. LOGGING OUT." : "Bot Wins!";
+                    logToTerminal("MATCH TERMINATED. SYSTEM INTACT.", "#da373c");
+                } else {
+                    statusElement.innerText = `Player ${player} Wins!`;
+                    logToTerminal("SECURITY BREACH: Win state cleared.");
+                }
+                stats[player.toLowerCase()]++;
+                updateStatsUI();
                 isGameActive = false;
-                processMatchEnd(player);
+                removeRageClasses();
                 return;
             }
 
             if (!board.includes("")) {
                 statusElement.innerText = "Tie Match!";
+                logToTerminal("TIE ARCHIVE WRITTEN.", "#faa61a");
+                stats.ties++;
+                updateStatsUI();
                 isGameActive = false;
-                processMatchEnd("Tie");
+                removeRageClasses();
                 return;
             }
-        }
 
-        /* --- LEARN-AI REINFORCEMENT ALGORITHM ---
-           Uses a Q-learning behavioral probability map. If a choice sequence ends 
-           in a Win, those choice variations increase in database weight selection. 
-           If a choice sequence ends in a Loss, weights are penalized. */
-        function triggerEngineMove() {
-            if (!isGameActive) return;
-
-            const stateString = board.map(val => val === "" ? "-" : val).join("");
-            let emptyCells = board.map((v, i) => v === "" ? i : null).filter(v => v !== null);
-            let selectedMove;
-
-            if (diffSelect.value === "easy") {
-                selectedMove = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-                dbTerminal.innerText = `> Running basic static bot.`;
+            currentPlayer = currentPlayer === "X" ? "O" : "X";
+            if (modeSelect.value === "bot") {
+                statusElement.innerText = "Your Turn (X)";
+                statusElement.style.color = "#fff";
             } else {
-                // Initializing table if current node state is entirely unseen before
-                if (!moveDatabase[stateString]) {
-                    moveDatabase[stateString] = {};
-                    emptyCells.forEach(cellIdx => {
-                        moveDatabase[stateString][cellIdx] = 3; // Default baseline selection weight
-                    });
-                    dbTerminal.innerText = `> Indexed new map node: "${stateString}"`;
-                } else {
-                    dbTerminal.innerText = `> Analyzing database matrix weights for state...`;
-                }
-
-                // Weighted random choices derived from prior training runs
-                const choices = moveDatabase[stateString];
-                let pool = [];
-                Object.keys(choices).forEach(moveIdx => {
-                    let weight = choices[moveIdx];
-                    for (let w = 0; w < weight; w++) {
-                        pool.push(parseInt(moveIdx));
-                    }
-                });
-
-                // Fallback protection if all routes are depleted
-                if (pool.length === 0) pool = emptyCells;
-                selectedMove = pool[Math.floor(Math.random() * pool.length)];
-
-                // Push tracking array block
-                matchHistory.push({ state: stateString, move: selectedMove, player: "O" });
+                statusElement.innerText = `Player ${currentPlayer}'s Turn`;
             }
-
-            executeMove(selectedMove, "O");
-            if (isGameActive) statusElement.innerText = "Your Turn (X)";
         }
 
-        function processMatchEnd(winner) {
-            if (diffSelect.value !== "learn-ai") {
-                resetBoardStateOnly();
-                return;
-            }
+        /* --- BOT AI ENGINE --- */
+        function triggerBotMove() {
+            if (!isGameActive) return;
+            const difficulty = diffSelect.value;
+            let targetIndex;
 
-            dbTerminal.innerHTML = `> Processing reinforcement array...<br>`;
-            
-            // Loop backward through the current match history log and apply rewards
-            matchHistory.forEach(step => {
-                if (step.player === "O") { // Update AI matrix nodes
-                    if (!moveDatabase[step.state]) return;
-                    
-                    if (winner === "O") {
-                        // AI won: Greatly prioritize this precise pathway move in future games
-                        moveDatabase[step.state][step.move] += 3;
-                        dbTerminal.innerHTML += `<span style="color:#23a55a">> Rewarded move ${step.move} (+3)</span><br>`;
-                    } else if (winner === "X") {
-                        // AI lost: Penalize weight selection probability, floor it to 1
-                        moveDatabase[step.state][step.move] = Math.max(1, moveDatabase[step.state][step.move] - 2);
-                        dbTerminal.innerHTML += `<span style="color:#f23f43">> Penalized move ${step.move} (-2)</span><br>`;
-                    } else {
-                        // Tie balance adjustment
-                        moveDatabase[step.state][step.move] += 1;
+            if (difficulty === "easy") {
+                targetIndex = getRandomMove();
+            } else if (difficulty === "medium") {
+                targetIndex = getMediumMove();
+            } else {
+                // Hard, Impossible, and Sabotage use perfect Minimax trees
+                if (difficulty === "sabotage") {
+                    logToTerminal(sabotageInsults[Math.floor(Math.random() * sabotageInsults.length)], "#a333ff");
+                } else if (difficulty === "impossible") {
+                    logToTerminal("Simulating flawless terminal nodes...", "#f23f43");
+                }
+
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (board[i] === "") {
+                        board[i] = "O";
+                        let score = minimax(board, 0, false);
+                        board[i] = "";
+                        if (score > bestScore) {
+                            bestScore = score;
+                            targetIndex = i;
+                        }
                     }
                 }
-            });
+            }
 
-            // Update stats structure
-            if (winner === "X") globalStats.x++;
-            else if (winner === "O") globalStats.o++;
-            else globalStats.ties++;
+            if (targetIndex !== undefined && targetIndex !== -1) {
+                makeMove(targetIndex, "O");
+            }
 
-            localStorage.setItem(STATS_KEY, JSON.stringify(globalStats));
-            saveMoveDatabase();
+            // Sabotage Mechanic 3: Post-move UI confusion injection
+            if (difficulty === "sabotage" && isGameActive) {
+                setTimeout(() => {
+                    cells.forEach(c => {
+                        if (c.innerText === "" && Math.random() < 0.3) {
+                            c.classList.add("fake-x"); // Renders fake ghost marks to break focus
+                        }
+                    });
+                }, 100);
+            }
+        }
+
+        function getRandomMove() {
+            let empties = board.map((val, idx) => val === "" ? idx : null).filter(val => val !== null);
+            return empties[Math.floor(Math.random() * empties.length)];
+        }
+
+        function getMediumMove() {
+            for(let i=0; i<9; i++) {
+                if(board[i] === "") {
+                    board[i] = "O";
+                    if(checkWin(board, "O")) { board[i] = ""; return i; }
+                    board[i] = "";
+                }
+            }
+            for(let i=0; i<9; i++) {
+                if(board[i] === "") {
+                    board[i] = "X";
+                    if(checkWin(board, "X")) { board[i] = ""; return i; }
+                    board[i] = "";
+                }
+            }
+            return getRandomMove();
+        }
+
+        function minimax(tempBoard, depth, isMaximizing) {
+            if (checkWin(tempBoard, "O")) return 10 - depth;
+            if (checkWin(tempBoard, "X")) return depth - 10;
+            if (!tempBoard.includes("")) return 0;
+
+            if (isMaximizing) {
+                let bestScore = -Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (tempBoard[i] === "") {
+                        tempBoard[i] = "O";
+                        let score = minimax(tempBoard, depth + 1, false);
+                        tempBoard[i] = "";
+                        bestScore = Math.max(score, bestScore);
+                    }
+                }
+                return bestScore;
+            } else {
+                let bestScore = Infinity;
+                for (let i = 0; i < 9; i++) {
+                    if (tempBoard[i] === "") {
+                        tempBoard[i] = "X";
+                        let score = minimax(tempBoard, depth + 1, true);
+                        tempBoard[i] = "";
+                        bestScore = Math.min(score, bestScore);
+                    }
+                }
+                return bestScore;
+            }
         }
 
         function checkWin(b, player) {
-            return winPatterns.some(p => b[p[0]] === player && b[p[1]] === player && b[p[2]] === player);
-        }
-
-        function resetBoardStateOnly() {
-            board = ["", "", "", "", "", "", "", "", ""];
-            isGameActive = true;
-            matchHistory = [];
-            statusElement.innerText = "Your Turn (X)";
-            cells.forEach(cell => { cell.innerText = ""; cell.className = "cell"; });
-        }
-
-
-        // --- ADAPTIVE LANGUAGE LEARNING CHATBOT ENGINE ---
-        const chatMessages = document.getElementById("chat-messages");
-        const chatInput = document.getElementById("chat-input");
-        const chatSend = document.getElementById("chat-send");
-
-        function handleChatSubmission() {
-            const inputRaw = chatInput.value.trim();
-            if (!inputRaw) return;
-
-            appendMessageMarkup(inputRaw, "user");
-            chatInput.value = "";
-
-            // Bot evaluates, strips symbols, parses patterns, tokens and learns
-            setTimeout(() => {
-                const responseText = processLinguisticLearningAndReply(inputRaw);
-                appendMessageMarkup(responseText, "bot");
-            }, 500);
-        }
-
-        function appendMessageMarkup(text, sender) {
-            const div = document.createElement("div");
-            div.className = `msg ${sender}`;
-            div.innerText = text;
-            chatMessages.appendChild(div);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-        }
-
-        function processLinguisticLearningAndReply(userInput) {
-            // Clean up the text input to extract pure language tokens
-            let normalized = userInput.toLowerCase().replace(/[.,\/#!$%\^&\*;:{}=\-_`~()?]/g,"");
-            let tokens = normalized.split(/\s+/).filter(t => t.length > 0);
-
-            if (tokens.length === 0) return "📄 (Indexed empty symbol trace.)";
-
-            // 1. Map individual vocab terms to brain database
-            tokens.forEach(token => {
-                if (!lingDatabase.vocabulary.includes(token)) {
-                    lingDatabase.vocabulary.push(token);
-                }
+            return winPatterns.some(pattern => {
+                return pattern.every(index => b[index] === player);
             });
+        }
 
-            // 2. Map structural phrase sequences (Simple N-Gram Association)
-            for (let i = 0; i < tokens.length - 1; i++) {
-                let currentWord = tokens[i];
-                let nextWord = tokens[i+1];
-                if (!lingDatabase.phrases[currentWord]) {
-                    lingDatabase.phrases[currentWord] = [];
-                }
-                if (!lingDatabase.phrases[currentWord].includes(nextWord)) {
-                    lingDatabase.phrases[currentWord].push(nextWord);
+        /* --- UI MANAGEMENT & RESET CONTROLS --- */
+        function handleModeChange() {
+            if (modeSelect.value === "local") {
+                diffSelect.style.display = "none";
+                diffLabel.style.display = "none";
+                document.getElementById("terminal-section").style.display = "none";
+                removeRageClasses();
+            } else {
+                diffSelect.style.display = "block";
+                diffLabel.style.display = "block";
+                document.getElementById("terminal-section").style.display = "flex";
+                handleDifficultyChange();
+            }
+            resetBoard();
+        }
+
+        function handleDifficultyChange() {
+            removeRageClasses();
+            if (modeSelect.value === "bot") {
+                if (diffSelect.value === "sabotage") {
+                    boardElement.classList.add("sabotage-rage");
+                    logToTerminal("SABOTAGE PROTOCOL ENGAGED.", "#a333ff");
+                } else if (diffSelect.value === "impossible") {
+                    boardElement.classList.add("impossible-rage");
+                    logToTerminal("WARNING: IMPOSSIBLE INTERFACE ENGAGED.", "#f23f43");
+                } else {
+                    logToTerminal("System ready.");
                 }
             }
+            resetBoard();
+        }
 
-            // Keep an exact history log of raw inputs to mimic exact response patterns
-            lingDatabase.lastUserInputs.push(userInput);
-            if (lingDatabase.lastUserInputs.length > 40) lingDatabase.lastUserInputs.shift();
+        function removeRageClasses() {
+            boardElement.classList.remove("impossible-rage", "sabotage-rage");
+        }
 
-            saveLinguisticDatabase();
+        function updateStatsUI() {
+            document.getElementById("stat-x").innerText = stats.x;
+            document.getElementById("stat-o").innerText = stats.o;
+            document.getElementById("stat-ties").innerText = stats.ties;
+        }
 
-            // 3. Response Generation Layer
-            // Fallback response if user text is completely unique and no prior dataset links exist
-            if (lingDatabase.lastUserInputs.length < 3) {
-                return `[Data Logged] I've analyzed "${tokens.join(" ")}". Keep talking to expand my dataset.`;
-            }
-
-            const evaluationTrigger = Math.random();
-
-            // Behavior Mode A: Echo and mirror structured phrase links
-            if (evaluationTrigger < 0.45) {
-                // Grab a random seed word from what the user just typed
-                let seedWord = tokens[Math.floor(Math.random() * tokens.length)];
-                let generatedChain = [seedWord];
-                let current = seedWord;
-
-                // Follow learned contextual links up to a maximum sentence length of 6 words
-                for (let len = 0; len < 5; len++) {
-                    let options = lingDatabase.phrases[current];
-                    if (options && options.length > 0) {
-                        let next = options[Math.floor(Math.random() * options.length)];
-                        generatedChain.push(next);
-                        current = next;
-                    } else {
-                        break;
-                    }
+        function resetBoard() {
+            board = ["", "", "", "", "", "", "", "", ""];
+            currentPlayer = "X";
+            isGameActive = true;
+            statusElement.innerText = "Your Turn (X)";
+            statusElement.style.color = "#fff";
+            cells.forEach(cell => {
+                cell.innerText = "";
+                cell.className = "cell"; 
+            });
+            clearVisualSabotage();
+            if (modeSelect.value === "bot") {
+                if (diffSelect.value === "sabotage") {
+                    logToTerminal("MATRIX RESET. INITIATING INTRUSION...", "#a333ff");
+                } else if (diffSelect.value === "impossible") {
+                    logToTerminal("AWAITING INEVITABLE HUMAN ERROR...", "#f23f43");
                 }
-
-                // If chain construction fails, return a full mirror response instead
-                if (generatedChain.length <= 1) {
-                    return lingDatabase.lastUserInputs[Math.floor(Math.random() * lingDatabase.lastUserInputs.length)];
-                }
-
-                return generatedChain.join(" ");
-            } 
-            // Behavior Mode B: Natural Mirroring Mimicry
-            else {
-                return lingDatabase.lastUserInputs[Math.floor(Math.random() * lingDatabase.lastUserInputs.length)];
             }
         }
 
+        function wipeAllStats() {
+            stats = { x: 0, o: 0, ties: 0 };
+            updateStatsUI();
+            resetBoard();
+        }
 
-        // --- EVENT ATTACHMENTS ---
         boardElement.addEventListener("click", handleCellClick);
-        document.getElementById("btn-reset").addEventListener("click", resetBoardStateOnly);
-        
-        document.getElementById("btn-wipe").addEventListener("click", () => {
-            if (confirm("Are you sure you want to completely erase the AI's training data?")) {
-                localStorage.removeItem(MOVE_DB_KEY);
-                localStorage.removeItem(STATS_KEY);
-                moveDatabase = {};
-                globalStats = { x: 0, o: 0, ties: 0 };
-                dbTerminal.innerText = "> Database wiped cleanly.";
-                updateDatabaseUI();
-                resetBoardStateOnly();
-            }
-        });
-
-        chatSend.addEventListener("click", handleChatSubmission);
-        chatInput.addEventListener("keypress", (e) => { if (e.key === "Enter") handleChatSubmission(); });
-
-        // Initialize UI values on load
-        updateDatabaseUI();
     </script>
 </body>
 </html>
