@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Chunk Not Found</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+        .mc-font { font-family: 'Press Start 2P', monospace; }
+        
+        @keyframes blockMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        .animated-bg {
+            background: linear-gradient(-45deg, #1a0c2e, #0f172a, #1e3a8a, #020617);
+            background-size: 400% 400%;
+            animation: blockMove 15s ease infinite;
+        }
+        @keyframes floatItem {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(5deg); }
+        }
+        .mc-item { animation: floatItem 3s ease-in-out infinite; }
+        
+        /* Full 360 Spin Cycle Animation */
+        @keyframes spinCycleAnim {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .spin-cycle {
+            animation: spinCycleAnim 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        }
+        
+        /* Forces the browser to keep pixels pixelated instead of blurring your PNG */
+        .pixelated {
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+        }
+    </style>
+</head>
+<body class="animated-bg text-slate-100 min-h-screen flex flex-col items-center justify-center p-4 mc-font selection:bg-green-500 selection:text-black">
+
+    <div class="max-w-md w-full text-center space-y-8 bg-neutral-900 border-4 border-b-8 border-r-8 border-neutral-950 p-6 shadow-2xl relative">
+        <div class="text-rose-500 text-xs tracking-wider">
+            [ERROR_CODE_404]
+        </div>
+
+        <div class="flex justify-center my-4 mc-item select-none cursor-pointer">
+            <img id="blockIcon" src="/404bord.png" alt="Chunk Error" class="w-24 h-24 pixelated filter drop-shadow-[0_8px_0_rgba(0,0,0,0.5)] transition-transform touch-manipulation">
+        </div>
+
+        <div class="space-y-4">
+            <h2 class="text-lg text-yellow-400 leading-snug">CHUNK NOT FOUND!</h2>
+            <p class="text-[10px] text-neutral-400 leading-relaxed tracking-wide">
+                You hit the world border. This terrain map layer failed to generate or was mined out by another player.
+            </p>
+        </div>
+
+        <div class="pt-4">
+            <a href="/index.html" class="block w-full bg-neutral-600 border-2 border-b-4 border-r-4 border-t-neutral-400 border-l-neutral-400 border-b-neutral-800 border-r-neutral-800 hover:bg-green-600 hover:border-t-green-400 hover:border-l-green-400 hover:border-b-green-800 hover:border-r-green-800 text-white font-bold py-3 text-xs tracking-wider text-center active:border-t-neutral-800 active:border-l-neutral-800 shadow-md transition-all">
+                RESPAWN AT BASE
+            </a>
+        </div>
+    </div>
+
+    <script>
+        const block = document.getElementById('blockIcon');
+
+        block.addEventListener('pointerdown', () => {
+            if (block.classList.contains('spin-cycle')) return;
+
+            block.classList.add('spin-cycle');
+
+            block.addEventListener('animationend', () => {
+                block.classList.remove('spin-cycle');
+            }, { once: true });
+        });
+    </script>
+
+</body>
+</html>
